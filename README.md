@@ -100,22 +100,23 @@ After writing the Docker File , enter the Jenkins GUI and build this script:
 
 make sure to configure your docker-hub credentials, the output will be like this:
 
-![Screenshot from 2024-10-25 17-22-21](H:\Screenshots\Screenshot from 2024-10-25 17-22-21.png)
+![Screenshot from 2024-10-25 17-22-21](https://github.com/user-attachments/assets/1e3be097-ecf8-401f-b6a6-8bac1801d49e)
 
-![Screenshot from 2024-10-25 17-22-40](H:\Screenshots\Screenshot from 2024-10-25 17-22-40.png)
+![Screenshot from 2024-10-25 17-22-40](https://github.com/user-attachments/assets/cc1a81d2-1007-44bc-93f2-29ebfbff8d0d)
 
-![Screenshot from 2024-10-25 17-22-47](H:\Screenshots\Screenshot from 2024-10-25 17-22-47.png)
+![Screenshot from 2024-10-25 17-22-47](https://github.com/user-attachments/assets/7434bd5b-c27a-4664-957c-31035d844d40)
 
-![Screenshot from 2024-10-25 17-23-08](H:\Screenshots\Screenshot from 2024-10-25 17-23-08.png)
+![Screenshot from 2024-10-25 17-23-08](https://github.com/user-attachments/assets/632bc5fa-376f-4d5b-bf9c-f7583c20d028)
 
-![Screenshot from 2024-10-25 17-23-13](H:\Screenshots\Screenshot from 2024-10-25 17-23-13.png)
+![Screenshot from 2024-10-25 17-23-13](https://github.com/user-attachments/assets/efc23a0c-77ce-4f95-84b6-4869f543a8e9)
 
-![Screenshot from 2024-10-25 17-23-27](H:\Screenshots\Screenshot from 2024-10-25 17-23-27.png)
+![Screenshot from 2024-10-25 17-23-27](https://github.com/user-attachments/assets/1929a6e8-1b0b-49af-a1f8-ab95c46d16d7)
+
+
 
 # Check your DockerHub
 
-![Screenshot 2024-10-25 194413](H:\Screenshots\Screenshot 2024-10-25 194413.png)
-
+![Screenshot 2024-10-25 194413](https://github.com/user-attachments/assets/03063219-a42e-4037-b610-1bee8bd3e62b)
 
 # Another VM for Minikube and kubectl and Argocd
 
@@ -163,13 +164,13 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 
 #  deploy your app  
 
+![Screenshot (749)](https://github.com/user-attachments/assets/bd95ef89-eb71-47f7-87e9-a5068962786a)
 
-
-![Screenshot (749)](H:\Screenshots\Screenshot (749).png)
-
-![Screenshot (748)](H:\Screenshots\Screenshot (748).png)
+![Screenshot (748)](https://github.com/user-attachments/assets/64ac14e5-0dcc-4e4d-b01c-561938b97d0f)
 
 
 ### Congratulations!
 
-![WhatsApp Image 2024-10-01 at 19.36.36_828a14cc](H:\Screenshots\WhatsApp Image 2024-10-01 at 19.36.36_828a14cc.jpg)``
+![WhatsApp Image 2024-10-01 at 19 36 36_828a14cc](https://github.com/user-attachments/assets/572bfd85-4f92-440c-b84b-c6ca854ab46f)
+
+
