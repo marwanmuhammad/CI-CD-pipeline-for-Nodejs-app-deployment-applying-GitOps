@@ -1,125 +1,175 @@
-<p align="center">
-  <br />
-  <a href="https://nodejs.org">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://nodejs.org/static/logos/nodejsLight.svg">
-      <img src="https://nodejs.org/static/logos/nodejsDark.svg" width="200px">
-    </picture>
-  </a>
-</p>
+# Overview
 
-<p align="center">
-  <a href="https://nodejs.org">Node.js</a> Website built using Next.js with TypeScript, CSS Modules/Tailwind, and MDXv3
-</p>
+This project involves deploying the `Node.js application` from the Node.js GitHub repository 
+to a local Kubernetes cluster. The deployment will use `ArgoCD` for continuous delivery. We 
+will set up a `Jenkins` pipeline to automate the build and deployment process.
 
-<p align="center">
-  <a title="MIT License" href="LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" />
-  </a>
-  <a title="Localised" href="https://crowdin.com/project/nodejs-web">
-    <img src="https://badges.crowdin.net/nodejs-web/localized.svg" alt="Crowdin Badge" />
-  </a>
-  <a title="Vercel" href="https://vercel.com">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/powered%20by-Vercel%20%E2%96%B2-white">
-      <img src="https://img.shields.io/badge/powered%20by-Vercel%20%E2%96%B2-black" alt="Powered by Vercel">
-    </picture>
-  </a>
-  <br />
-  <img src="https://github.com/nodejs/nodejs.org/actions/workflows/build.yml/badge.svg" alt="Build and Analysis Checks" />
-  <a title="scorecard" href="https://securityscorecards.dev/viewer/?uri=github.com/nodejs/nodejs.org">
-    <img src="https://api.securityscorecards.dev/projects/github.com/nodejs/nodejs.org/badge" alt="nodejs.org scorecard badge" />
-  </a>
-  <a href="http://commitizen.github.io/cz-cli/" alt="Commitizen friendly">
-    <img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg">
-  </a>
-  <br />
-  <br />
-</p>
+# Prerequisites
 
-## What is this repo?
+Vm1:
 
-[Nodejs.org](https://nodejs.org/) by the [OpenJS Foundation](https://openjsf.org/) is the official website for the Node.js® JavaScript runtime. This repo is the source code for the website. It is built using [Next.js](https://nextjs.org), a React Framework.
+• Virtual Machine (VM) for Jenkins • Docker installed on the Jenkins VM
+
+VM2 :
+
+• Minikube installed on the second VM • ArgoCD installed on Minikube
+
+# Machine for jenkins and Docker 
+
+# install Docker
 
 ```bash
-npm ci
-npx turbo dev
-
-# listening at localhost:3000
+sudo apt update
+sudo apt install curl
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg
+sudo add-apt-repository "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt update
+sudo apt -y install lsb-release gnupg apt-transport-https ca-certificates curl software-properties-common
+sudo apt -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-registry
+sudo usermod -aG docker $USER
+newgrp docker
 ```
 
-## Contributing
+# Install Jenkins on local host
 
-This project adopts the Node.js [Code of Conduct][].
+```bash
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
 
-Any person who wants to contribute to the Website is welcome! Please read [Contribution Guidelines][] and see the [Figma Design][] to understand better the structure of this repository.
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
 
-> \[!IMPORTANT]\
-> Please read our [Translation Guidelines][] before contributing to Translation and Localization of the Website
+sudo apt update
+sudo apt install fontconfig openjdk-17-jre -y
+sudo apt install -y jenkins
+sudo systemctl start jenkins
+sudo systemctl status jenkins
+```
 
-> \[!NOTE]\
-> We recommend a read of all Relevant Links below before doing code changes; Including Dependency changes, Content changes, and Code changes.
+After writing the Docker File , enter the Jenkins GUI and build this script:
 
-### Deployment
+    pipeline {
+        agent any
+    
+        stages {
+            stage("Checkout code") {
+                steps {
+                    script {
+                        if (!fileExists('nodejs.org')) {
+                            sh 'git clone https://github.com/marwan-mohammad/nodejs.org'
+                        }
+                        dir('nodejs.org') {
+                            sh 'git fetch origin'
+                            sh 'git checkout main'
+                            sh 'git pull'
+                        }
+                    }
+                }
+            }
+            stage("Install dependencies") {
+                steps {
+                    dir('nodejs.org') {
+                        sh 'npm ci'
+                    }
+                }
+            }
+            stage("Run unit testing") {
+                steps {
+                    dir('nodejs.org') {
+                        sh 'npm run test'
+                    }
+                }
+            }
+            stage("Dockerize") {
+                steps {
+                    dir('nodejs.org') {
+                        sh 'docker build -t marwanmuhammad/nodejs.org .'
+                    }
+                }
+            }
+            stage("Push Docker image") {
+                steps {
+                    dir('nodejs.org') {
+                        withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                            sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
+                            sh 'docker push marwanmuhammad/nodejs.org'
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-The Website is automatically deployed to [Vercel](https://vercel.com) through its GitHub App integration when new pushes happen on the `main` branch.
+make sure to configure your docker-hub credentials, the output will be like this:
 
-Details regarding the deployment are only accessible to the maintainers of the Website Team due to certain limitations.
+![Screenshot from 2024-10-25 17-22-21](H:\Screenshots\Screenshot from 2024-10-25 17-22-21.png)
 
-The current integration is owned by the OpenJS Foundation and managed by the Website Team.
+![Screenshot from 2024-10-25 17-22-40](H:\Screenshots\Screenshot from 2024-10-25 17-22-40.png)
 
-<details>
-  <summary>Legacy Deployment</summary>
+![Screenshot from 2024-10-25 17-22-47](H:\Screenshots\Screenshot from 2024-10-25 17-22-47.png)
 
-The full setup is in <https://github.com/nodejs/build/tree/master/ansible/www-standalone> minus secrets and certificates.
+![Screenshot from 2024-10-25 17-23-08](H:\Screenshots\Screenshot from 2024-10-25 17-23-08.png)
 
-The webhook is set up on GitHub for this project and talks to a small Node server on the host, which does the work. See the [github-webhook](https://github.com/rvagg/github-webhook) package for this.
+![Screenshot from 2024-10-25 17-23-13](H:\Screenshots\Screenshot from 2024-10-25 17-23-13.png)
 
-</details>
+![Screenshot from 2024-10-25 17-23-27](H:\Screenshots\Screenshot from 2024-10-25 17-23-27.png)
 
-## Node.js Binaries & API Docs
+# Check your DockerHub
 
-This repository does not contain the codebase or related infrastructure that serves `https://nodejs.org/api/`, `https://nodejs.org/docs/` or `https://nodejs.org/dist/`.
+![Screenshot 2024-10-25 194413](H:\Screenshots\Screenshot 2024-10-25 194413.png)
 
-These are maintained in different repositories and we urge users to open **issues in their respective repositories**, for bug reports, feature requests or any matter related to these endpoints.
 
-- [`release-cloudflare-worker`](https://github.com/nodejs/release-cloudflare-worker): The codebase responsible for serving the Node.js Distribution Binaries, API Docs and any other assets from the links mentioned above.
-  - We use Cloudflare R2 Buckets for storing our Assets and Cloudflare Workers for serving these Assets to the Web.
-- [`node/doc/api`](https://github.com/nodejs/node/tree/main/doc/api): The source code of our API docs, it contains all the Node.js API Documentation Markdown files
-  - [`node/doc`](https://github.com/nodejs/node/tree/main/doc) contains the HTML templates, CSS styles and JavaScript code that runs on the client-side of our API Docs generated pages.
-  - [`node/tools/doc`](https://github.com/nodejs/node/tree/main/tools/doc) contains the tooling that validates, lints, builds and compiles our API Docs. Also responsible for generating what you see when accessing `https://nodejs.org/api/`.
+# Another VM for Minikube and kubectl and Argocd
 
-## Relevant Links
+# install minikube and kubectl 
 
-[Code of Conduct][]
+```bash
+Install Kubernetes on Ubuntu/Debian 
+#### Install Docker First if Installed Skip these steps
+sudo apt update
+sudo apt install curl
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg
+sudo add-apt-repository "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt update
+sudo apt -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-registry 
+sudo usermod -aG docker $USER
+newgrp docker
 
-[Contribution Guidelines][]
+######### Install MiniKube (kubernetes platform)
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+ls
+sudo dpkg -i minikube_latest_amd64.deb
 
-[Collaborator Guide][]
+minikube start --driver=docker --nodes=2
+sudo snap install kubectl --classic
+minikube kubectl -- get pods
+kubectl cluster-info
+kubectl get pods
+minikube addons list
+minikube dashboard &
+kubectl get nodes
+kubectl get pods -A
 
-[Figma Design][]
+### install argo cd
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-[Content vs Code][]
+to get password
 
-[Dependency Pinning][]
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 
-[Translation Guidelines][]
+and portforward
+kubectl port-forward svc/argocd-server -n argocd 8080:443
 
-## Thanks
+```
 
-- Thanks to all contributors and collaborators that make this project possible.
-- Thanks to [Chromatic](https://www.chromatic.com/) for providing the visual testing platform that helps us review UI changes and catch visual regressions.
-- Thanks to [Vercel](https://www.vercel.com/) for providing the infrastructure that serves and powers the Node.js Website
-- Thanks to [Cloudflare](https://cloudflare.com) for providing the infrastructure that serves Node.js's Website, Node.js's CDN and more.
-  - A really warm thank you to Cloudflare as we would not be able to serve our community without their immense support.
-- Thanks to [Sentry](https://sentry.io/welcome/) for providing an open source license for their error reporting, monitoring and diagnostic tools.
-- Thanks to [Crowdin](https://crowdin.com/) for providing a platform that allows us to localize the Node.js Website and collaborate with translators.
-- Thanks to [Orama](https://docs.oramasearch.com/) for providing a search platform that indexes our expansive content and provides lightning-fast results for our users.
+#  deploy your app  
 
-[code of conduct]: https://github.com/nodejs/admin/blob/main/CODE_OF_CONDUCT.md
-[contribution guidelines]: https://github.com/nodejs/nodejs.org/blob/main/CONTRIBUTING.md
-[content vs code]: https://github.com/nodejs/nodejs.org/blob/main/CONTENT_VS_CODE.md
-[dependency pinning]: https://github.com/nodejs/nodejs.org/blob/main/DEPENDENCY_PINNING.md
-[collaborator guide]: https://github.com/nodejs/nodejs.org/blob/main/COLLABORATOR_GUIDE.md
-[figma design]: https://www.figma.com/file/pu1vZPqNIM7BePd6W8APA5/Node.js
-[translation guidelines]: https://github.com/nodejs/nodejs.org/blob/main/TRANSLATION.md
+
+
+![Screenshot (749)](H:\Screenshots\Screenshot (749).png)
+
+![Screenshot (748)](H:\Screenshots\Screenshot (748).png)
+
+
+### Congratulations!
+
+![WhatsApp Image 2024-10-01 at 19.36.36_828a14cc](H:\Screenshots\WhatsApp Image 2024-10-01 at 19.36.36_828a14cc.jpg)``
