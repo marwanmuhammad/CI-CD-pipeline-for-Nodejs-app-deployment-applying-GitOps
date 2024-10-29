@@ -1,3 +1,6 @@
+
+![nodejs app](https://github.com/user-attachments/assets/a82c14bd-23cf-45a4-ac7e-e6a8db17a851)
+
 # Overview
 
 This project involves deploying the `Node.js application` from the Node.js GitHub repository 
