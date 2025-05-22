@@ -6,7 +6,8 @@
 This project involves deploying the `Node.js application` from the Node.js GitHub repository 
 to a local Kubernetes cluster. The deployment will use `ArgoCD` for continuous delivery. We 
 will set up a `Jenkins` pipeline to automate the build and deployment process.
-![nodejs app](https://github.com/user-attachments/assets/a82c14bd-23cf-45a4-ac7e-e6a8db17a851)
+![Architecture](https://github.com/user-attachments/assets/d13e38cc-35a9-41d1-aff5-b81692eedc1c)
+
 # Prerequisites
 
 Vm1:
