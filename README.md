@@ -1,12 +1,12 @@
+![CICD Architecture](https://github.com/user-attachments/assets/c3d444e3-3ae9-40d0-b4c8-03925d528923)
 
-![nodejs app](https://github.com/user-attachments/assets/a82c14bd-23cf-45a4-ac7e-e6a8db17a851)
 
 # Overview
 
 This project involves deploying the `Node.js application` from the Node.js GitHub repository 
 to a local Kubernetes cluster. The deployment will use `ArgoCD` for continuous delivery. We 
 will set up a `Jenkins` pipeline to automate the build and deployment process.
-
+![nodejs app](https://github.com/user-attachments/assets/a82c14bd-23cf-45a4-ac7e-e6a8db17a851)
 # Prerequisites
 
 Vm1:
