@@ -12,11 +12,11 @@ will set up a `Jenkins` pipeline to automate the build and deployment process.
 
 Vm1:
 
-• Virtual Machine (VM) for Jenkins • Docker installed on the Jenkins VM
+• Docker • Jenkins
 
 VM2 :
 
-• Minikube installed on the second VM • ArgoCD installed on Minikube
+• Minikube • ArgoCD
 
 # Machine for jenkins and Docker 
 
